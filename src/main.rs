@@ -1,8 +1,11 @@
 extern crate rand;
 
 use rand::seq::SliceRandom;
+use std::fs::File;
+use std::io::{self, Read};
+use zip::read::ZipArchive;
 
-fn main() {
+fn main() -> io::Result<()> {
     // List of fish species names
     let fish_species = [
         "Angelfish",
@@ -36,5 +39,23 @@ fn main() {
     for species in &shuffled_species {
         println!("{}", species);
     }
+
+    // Read the .dat file
+    let mut file = File::open("src/ft.dat")?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+
+    // Unzip the file
+    let mut archive = ZipArchive::new(io::Cursor::new(buffer))?;
+    let mut fish_png_file = archive.by_name("fish_20_body_grid.png")?;
+
+    // Read the contents of the fish.png file
+    let mut png_content = Vec::new();
+    fish_png_file.read_to_end(&mut png_content)?;
+
+    // At this point, `png_content` contains the content of the fish.png file
+    println!("Successfully read fish.png from the .dat file.");
+
+    Ok(())
 }
 
